@@ -1,0 +1,49 @@
+<div class="navbar">
+    <div class="user-info">
+        <p>{{user.email}}</p>
+        <a href="/api/sessions/logout"><button>logout</button></a>
+        <p>cart id: {{user.cart}}</p>
+        <p>ROLE: {{user.role}}</p>
+    </div>
+</div>
+
+<h2>Cart</h2>
+{{#each cart.items}}
+    <p>{{this.item.description}} quantity {{this.quantity}} ${{this.item.price}}<button onclick="deleteFromCart('{{../user.cart}}','{{this.item._id}}')">remove</button> </p>
+
+{{/each}}
+<button onclick="purchaseCart('{{user.cart}}')">Purchase Cart</button>
+
+<h1>items</h1>
+
+<div class="items-container">
+    {{#each items}}
+        <div class="item-card">
+            <a href="/items/{{this._id}}"><h3>{{this.description}}</h3></a>
+            <small>{{this._id}}</small>
+            <p>category: {{this.category}}</p>
+            <p>price: {{this.price}}</p>
+            <p>stock: {{this.stock}}</p>
+            <button onclick="addToCart('{{../user.cart}}','{{this._id}}')">Add to cart</button>
+        </div>
+    {{/each}}
+</div>
+
+
+<div >
+    {{#if hasPrevPage}}
+        <a href="{{prevLink}}"><button >Prev</button></a>
+    {{else}}
+        <button disabled>Prev</button>
+    {{/if}}
+
+    {{#if hasNextPage}}
+   
+        <a href="{{nextLink}}"><button >Next</button></a>
+    </button>
+    {{else}}
+        <button class='btnPageDisabled' disabled>Next</button>
+    {{/if}}
+</div>
+
+<script src="/js/items.js"></script>

@@ -13,6 +13,7 @@ const passport = require('passport')
 const initializePassport = require('./config/passport.config')
 const cookieParser = require('cookie-parser');
 const { mongoConnectionLink, port } = require('./config/config');
+const { mocksRouter } = require('./routes/mock.router');
 
 const app = express();
 
@@ -76,5 +77,6 @@ io.on('connection',async (socket)=>{
 app.use('/api/items', itemsRouter);
 app.use('/api/carts', cartRouter);
 app.use('/api/sessions', sessionRouter)
+app.use('/api/mocks', mocksRouter)
 app.use('/', viewsRouter)
 

@@ -10,10 +10,13 @@ const {sessionRouter} = require('./routes/sessions.router');
 const manager = new ItemsManager(__dirname+'/files/items.json')
 const session = require('express-session')
 const passport = require('passport')
-const initializePassport = require('./config/passport.config')
+const {initializePassport} = require('./config/passport.config')
 const cookieParser = require('cookie-parser');
 const { mongoConnectionLink, port } = require('./config/config');
 const { mocksRouter } = require('./routes/mock.router');
+const errorHandling = require('./middlewares/errorHandling.middleware');
+const addLogger = require('./middlewares/addLogger.middleware');
+const { loggerRouter } = require('./routes/logger.router');
 
 const app = express();
 
@@ -23,6 +26,7 @@ app.use(passport.initialize())
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+app.use(addLogger)
 
 //handlebars config
 app.use(cookieParser())
@@ -47,6 +51,7 @@ app.use((req, res, next)=>{
 
 io.on('connection',async (socket)=>{
     console.log('socket connected')
+
 
     socket.on('new item',async (newItem)=>{
         await manager.addItem(newItem)
@@ -78,5 +83,7 @@ app.use('/api/items', itemsRouter);
 app.use('/api/carts', cartRouter);
 app.use('/api/sessions', sessionRouter)
 app.use('/api/mocks', mocksRouter)
+app.use('/api/logger', loggerRouter)
 app.use('/', viewsRouter)
 
+app.use(errorHandling)

@@ -42,7 +42,6 @@ class CartService {
     async addItem(id, itemId){
         
         const cart = await this.getById(id);
-        console.log(cart.items)
         const index = cart.items.findIndex(i=>i.item._id == itemId)
 
         if(index >= 0){

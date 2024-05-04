@@ -1,16 +1,29 @@
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/config');
 const MailingService = require('../services/mailing.service');
+const CustomError = require('../utils/errorHandling/CustomError');
+const ErrorTypes = require('../utils/errorHandling/ErrorTypes');
 
 const mailingService = new MailingService();
 
 class SessionController {
     static async registerUser(req, res) {
         //await MailingService.sendRegisterMail(req.user.email) 
+        req.logger.info(`User registed succesfully`)
         res.send({ status: 'success', message: 'User registered successfuly' })
     }
-    static async getRegisterError(req, res) {
-        res.status(400).send({ status: 'error', error: 'There has been a problem with the register process' })
+    static async getRegisterError(req, res, next) {
+        try {
+            throw new CustomError({
+                name:"invalid register",
+                cause: 'invalid register', 
+                message: 'There was a problem registering user', 
+                code: ErrorTypes.INVALID_TYPE_ERROR
+            })
+        } catch (error) {
+            next(error)
+        }
+        //res.status(400).send({ status: 'error', error: 'There has been a problem with the register process' })
     }
     static async login(req, res) {
         try {

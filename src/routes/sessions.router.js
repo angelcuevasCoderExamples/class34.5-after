@@ -2,9 +2,11 @@ const {Router} = require('express');
 const passport = require('passport')
 const getToken = require('../middlewares/getToken.middleware');
 const SessionController = require('../controllers/session.controller');
+const { callPassport } = require('../config/passport.config');
 const sessionRouter = Router();
 
 sessionRouter.post('/register', 
+    //callPassport('register'),
     passport.authenticate('register',{
         failureRedirect:'/api/sessions/failedRegister',
         session:false 

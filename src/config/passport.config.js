@@ -12,18 +12,25 @@ const initializePassport = ()=>{
         usernameField: 'email',
         session:false
     }, async (req, email, password, done)=>{
-        let existingUser; 
-     
-        existingUser = await usersService.getByProperty("email", email)
-  
+        let existingUser = null; 
+        
+        req.logger.info(`Login attemp: email: ${email} `)
 
         try {
-            
+            existingUser = await usersService.getByProperty("email", email)    
+        } catch (error) {
+            req.logger.info('user by that email already exist')
+            return done(null, false, {message:'user by that email already exist'})
+        }
+
+        
+        try {
+
             const {first_name, last_name } = req.body;
             if(!first_name || !last_name ) return done(null, false, {message:'incomplete parameters'})
             
             if(existingUser) return done(null, false, {message:'user by that email already exist'})
-
+            
             const cart = await cartsService.create();
             const newUserData = {
                 first_name, 
@@ -32,7 +39,6 @@ const initializePassport = ()=>{
                 password: hashPassword(password),
                 cart: cart._id 
             }
-
             let result = await usersService.create(newUserData)
             return done(null, result)
             
@@ -44,9 +50,10 @@ const initializePassport = ()=>{
 
     passport.use('login', new local.Strategy({
         usernameField: 'email',
-        session:false
-    }, async (email, password, done)=>{
-        try {            
+        session:false,
+        passReqToCallback: true,
+    }, async (req, email, password, done)=>{
+        try {               
 
             const user = await usersService.getByProperty("email",email);
             if(!user)  return done(null, false, {message:'user does not exist'})
@@ -101,5 +108,25 @@ passport.deserializeUser(async (id, done)=>{
 })
 
 
+const callPassport = (strategy)=>{
+    return (req, res, next)=>{
+        passport.authenticate(strategy, function(err, user, info){
 
-module.exports = initializePassport;
+            if(err) {return next(err)}
+
+            if(!user){
+                return next(err)
+                //return res.status(401).send({status:'error', error: info.messages ? info.messages: info.toString() })
+            }
+
+            req.user = user; 
+            next();
+        })(req, res, next)
+    }
+}
+
+
+module.exports = {
+    initializePassport,
+    callPassport
+};
